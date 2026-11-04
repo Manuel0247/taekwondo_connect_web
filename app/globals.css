@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+/*
+ * Charte graphique LCC (reprise de l'application mobile)
+ * Orange #E8650A (primaire) · Vert #1B7A3F (secondaire) · Noir #0A0A0A (fond)
+ * Surfaces #1C1C1E · Bordures #3A3A3C · Texte secondaire #8E8E93
+ * L'application mobile est exclusivement en thème sombre : le web aussi.
+ */
+@theme {
+  --color-primary: #e8650a;
+  --color-primary-light: #f5a05c;
+  --color-secondary: #1b7a3f;
+  --color-secondary-light: #2ea55a;
+  --color-ink: #0a0a0a;
+  --color-surface: #1c1c1e;
+  --color-surface-2: #242426;
+  --color-surface-3: #2c2c2e;
+  --color-line: #3a3a3c;
+  --color-muted: #8e8e93;
+  --color-gray-light: #f2f2f7;
+  --color-danger: #dc2626;
+  --color-info: #1e40af;
+  --color-info-light: #3b82f6;
+  --color-purple: #7c3aed;
+  --color-warning: #f59e0b;
+  --color-gold: #ffd700;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --breakpoint-xs: 380px;
+
+  --animate-fade-in: fade-in 0.25s ease-out both;
+  --animate-slide-up: slide-up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-scale-in: scale-in 0.2s ease-out both;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+}
+
+:root {
+  color-scheme: dark;
+  /* Hauteur de la barre d'onglets mobile (hors zone de sécurité) */
+  --bottom-nav-h: 64px;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-ink);
+  color: #fff;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Barres de défilement discrètes (desktop) */
+@media (pointer: fine) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Espace réservé sous le contenu pour la barre d'onglets mobile */
+.content-bottom-space {
+  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 24px);
+}
+@media (min-width: 768px) {
+  .content-bottom-space {
+    padding-bottom: 40px;
+  }
+}
+
+/* Sélecteurs de date/heure natifs en thème sombre */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+/* ── Leaflet : intégration au thème sombre ───────────────────────────── */
+.leaflet-container {
+  background: #111 !important;
+  font-family: var(--font-sans) !important;
+}
+.leaflet-control-attribution {
+  background: rgba(10, 10, 10, 0.75) !important;
+  color: var(--color-muted) !important;
+  font-size: 10px !important;
+}
+.leaflet-control-attribution a {
+  color: var(--color-primary-light) !important;
+}
+.leaflet-bar a {
+  background: var(--color-surface) !important;
+  color: #fff !important;
+  border-bottom-color: var(--color-line) !important;
+}
+.leaflet-bar {
+  border: 1px solid var(--color-line) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--color-surface) !important;
+  color: #fff !important;
+  border: 1px solid var(--color-line);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+}
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--color-muted) !important;
+}
+
+/* Tuiles OSM passées en thème sombre (les épingles, dans un autre calque, gardent leurs couleurs) */
+.lcc-dark-tiles {
+  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.6);
+}
+
+/* Épingle LCC (divIcon) */
+.lcc-pin {
+  position: relative;
+  width: 28px;
+  height: 28px;
+}
+.lcc-pin::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--pin-color, var(--color-primary));
+  border: 2px solid #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+.lcc-pin::after {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 9px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+}
+.lcc-me {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-info-light) 30%, transparent);
+  display: grid;
+  place-items: center;
+}
+.lcc-me::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-info-light);
+  border: 2px solid #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
