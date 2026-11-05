@@ -118,18 +118,18 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-/* ── Leaflet : intégration au thème sombre ───────────────────────────── */
+/* ── Leaflet : fond OSM standard (comme le mobile), contrôles au thème LCC ── */
 .leaflet-container {
-  background: #111 !important;
+  background: var(--color-surface) !important;
   font-family: var(--font-sans) !important;
 }
 .leaflet-control-attribution {
-  background: rgba(10, 10, 10, 0.75) !important;
-  color: var(--color-muted) !important;
-  font-size: 10px !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  color: #333 !important;
+  font-size: 9px !important;
 }
 .leaflet-control-attribution a {
-  color: var(--color-primary-light) !important;
+  color: #0078a8 !important;
 }
 .leaflet-bar a {
   background: var(--color-surface) !important;
@@ -154,52 +154,29 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   color: var(--color-muted) !important;
 }
 
-/* Tuiles OSM passées en thème sombre (les épingles, dans un autre calque, gardent leurs couleurs) */
-.lcc-dark-tiles {
-  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.6);
+/* Marqueurs (divIcon) — mêmes formes que la carte mobile */
+.lcc-pin,
+.lcc-dot {
+  background: transparent;
+  border: none;
 }
-
-/* Épingle LCC (divIcon) */
-.lcc-pin {
-  position: relative;
-  width: 28px;
-  height: 28px;
+.lcc-pin svg {
+  display: block;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+  transform-origin: 50% 100%;
+  transition: transform 0.15s ease;
 }
-.lcc-pin::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  background: var(--pin-color, var(--color-primary));
-  border: 2px solid #fff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+.lcc-pin-selected svg {
+  transform: scale(1.2);
 }
-.lcc-pin::after {
-  content: "";
-  position: absolute;
-  left: 9px;
-  top: 9px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #fff;
-}
-.lcc-me {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--color-info-light) 30%, transparent);
-  display: grid;
-  place-items: center;
-}
-.lcc-me::after {
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-info-light);
-  border: 2px solid #fff;
+.lcc-dot-inner {
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #2563eb;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.25);
+  box-sizing: border-box;
 }
 
 @media (prefers-reduced-motion: reduce) {

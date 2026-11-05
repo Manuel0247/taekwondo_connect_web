@@ -62,7 +62,7 @@ proxy.ts             protection des espaces par rôle
 - **Disciplines** : le web envoie les codes (`taekwondo_sport`, `poomsae`…) utilisés par les clubs existants et par le filtre de recherche.
 - **Hors-ligne (techniques)** : le mobile copie les fichiers sur le téléphone ; le web garde le catalogue dans `localStorage` et précharge les illustrations. La liste reste consultable si l'API est injoignable.
 - **Vidéos** : lecteur HTML5 pour les fichiers, lecteur YouTube intégré, lien pour les autres plateformes.
-- **Cartes** : tuiles OpenStreetMap assombries en CSS (les fonds CARTO exigent désormais une clé d'API).
+- **Cartes** : tuiles OpenStreetMap standard et épingles identiques à la carte mobile (`src/components/map/LeafletMap.tsx`).
 
 ## Vérifications
 

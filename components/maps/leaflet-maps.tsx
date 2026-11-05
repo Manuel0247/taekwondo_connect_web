@@ -11,21 +11,27 @@ import { ABIDJAN, COLORS } from "@/lib/config";
 import { cn, formatPrice } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
 
-// Tuiles OpenStreetMap (sans clé d'API) ; assombries en CSS (.lcc-dark-tiles) pour le thème sombre
+// Tuiles OpenStreetMap standard (sans clé d'API), comme src/components/map/LeafletMap.tsx du mobile
 const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
+// Épingle identique au mobile : goutte colorée, contour blanc, rond blanc central
 function pinIcon(color: string = COLORS.primary, selected = false) {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 30 42">' +
+    `<path d="M15 0C6.7 0 0 6.7 0 15c0 11.2 15 27 15 27s15-15.8 15-27C30 6.7 23.3 0 15 0z" fill="${color}" stroke="#fff" stroke-width="2"/>` +
+    '<circle cx="15" cy="15" r="5.5" fill="#fff"/></svg>';
   return L.divIcon({
-    className: "",
-    html: `<div class="lcc-pin" style="--pin-color:${color};${selected ? "transform:scale(1.2)" : ""}"></div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 34],
-    popupAnchor: [0, -32],
+    className: cn("lcc-pin", selected && "lcc-pin-selected"),
+    html: svg,
+    iconSize: [30, 42],
+    iconAnchor: [15, 42],
+    popupAnchor: [0, -38],
   });
 }
 
-const meIcon = L.divIcon({ className: "", html: '<div class="lcc-me"></div>', iconSize: [18, 18], iconAnchor: [9, 9] });
+// Point bleu de position (comme le mobile)
+const meIcon = L.divIcon({ className: "lcc-dot", html: '<div class="lcc-dot-inner"></div>', iconSize: [16, 16], iconAnchor: [8, 8] });
 
 type LatLng = { latitude: number; longitude: number };
 
@@ -137,7 +143,7 @@ export function ClubsMap({
   return (
     <div className={cn("relative isolate overflow-hidden", className)}>
       <MapContainer center={ABIDJAN} zoom={12} className="h-full w-full" scrollWheelZoom>
-        <TileLayer url={TILE_URL} attribution={ATTRIBUTION} className="lcc-dark-tiles" maxZoom={19} />
+        <TileLayer url={TILE_URL} attribution={ATTRIBUTION} maxZoom={19} />
         <FitClubs clubs={clubs} focusId={focusId} />
         <FlyTo target={flyTarget} zoom={13} />
         {me && <Marker position={[me.latitude, me.longitude]} icon={meIcon} interactive={false} />}
@@ -187,7 +193,7 @@ export function LocationMap({ latitude, longitude, title, className }: LatLng & 
   return (
     <div className={cn("relative isolate overflow-hidden rounded-lg border border-line", className)}>
       <MapContainer center={[latitude, longitude]} zoom={15} className="h-full w-full" scrollWheelZoom={false}>
-        <TileLayer url={TILE_URL} attribution={ATTRIBUTION} className="lcc-dark-tiles" maxZoom={19} />
+        <TileLayer url={TILE_URL} attribution={ATTRIBUTION} maxZoom={19} />
         <Marker position={[latitude, longitude]} icon={pinIcon()}>
           {title && (
             <Popup>
@@ -250,7 +256,7 @@ export function LocationPicker({
   return (
     <div className={cn("relative isolate overflow-hidden rounded-lg border border-line", className)}>
       <MapContainer center={center} zoom={value ? 16 : 12} className="h-full w-full" scrollWheelZoom>
-        <TileLayer url={TILE_URL} attribution={ATTRIBUTION} className="lcc-dark-tiles" maxZoom={19} />
+        <TileLayer url={TILE_URL} attribution={ATTRIBUTION} maxZoom={19} />
         <ClickToPlace onPick={onChange} />
         <FlyTo target={flyTarget} zoom={16} />
         {value && (
