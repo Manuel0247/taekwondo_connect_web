@@ -52,7 +52,7 @@ export default function AthleteProfilePage() {
           <Card className="flex flex-col items-center p-6 text-center">
             <Avatar src={athlete.user?.photo_url ?? athlete.photo_url} name={name} size={88} />
             <p className="mt-3 text-xl font-extrabold text-white">{name}</p>
-            <p className="text-sm text-muted">{athlete.user?.email ?? athlete.email}</p>
+            <p className="text-sm text-muted">{athlete.user?.email ?? athlete.user?.identifiant ?? athlete.email}</p>
             <GradeChip grade={athlete.grade} className="mt-3" />
             <div className="mt-5 w-full border-t border-line pt-4">
               <p className="mb-1 text-left text-xs font-bold tracking-wide text-muted uppercase">Progression</p>

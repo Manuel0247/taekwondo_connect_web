@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, Mail, Search, Users } from "lucide-react";
+import { ChevronRight, Mail, Search, UserPlus, Users } from "lucide-react";
 import { useClubAthletes, useClubAthletesPending } from "@/lib/hooks/athletes";
 import { formatShortDate } from "@/lib/format";
 import type { Athlete } from "@/lib/types";
@@ -36,9 +36,14 @@ export function AthletesManagement() {
         title="Athlètes"
         subtitle="Membres et demandes d'adhésion de votre club"
         actions={
-          <LinkButton href="/maitre/athletes/invitations" variant="subtle" size="sm" icon={<Mail className="size-4 text-primary" />}>
-            <span className="hidden sm:inline">Invitations</span>
-          </LinkButton>
+          <>
+            <LinkButton href="/maitre/athletes/invitations" variant="subtle" size="sm" icon={<Mail className="size-4 text-primary" />}>
+              <span className="hidden sm:inline">Invitations</span>
+            </LinkButton>
+            <LinkButton href="/maitre/athletes/nouveau" variant="secondary" size="sm" icon={<UserPlus className="size-4" />}>
+              <span className="hidden sm:inline">Ajouter</span>
+            </LinkButton>
+          </>
         }
       />
       <PageContainer className="mt-3 md:mt-0">
@@ -128,7 +133,7 @@ function AthletesTable({ athletes, pending }: { athletes: Athlete[]; pending: bo
                     <Avatar src={a.user?.photo_url ?? a.photo_url} name={athleteName(a)} size={36} />
                     <span className="min-w-0">
                       <span className="block truncate">{athleteName(a)}</span>
-                      <span className="block truncate text-xs font-normal text-muted">{a.user?.email}</span>
+                      <span className="block truncate text-xs font-normal text-muted">{a.user?.email ?? a.user?.identifiant}</span>
                     </span>
                   </Link>
                 </td>

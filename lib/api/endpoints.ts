@@ -1,7 +1,7 @@
 // Endpoints de l'API /api/v1 — mêmes appels que src/api/* de l'application mobile.
 import { api, unwrap, type Envelope } from "./client";
 import type {
-  Athlete, AthleteBadge, AthleteHistorique, AppNotification, Club, ClubDocument, Course,
+  Athlete, AthleteBadge, AthleteHistorique, AppNotification, Club, ClubDocument, Course, CreatedAccount,
   FavoriTechnique, Grade, Inscription, Invitation, InvitationSendResult, LeagueEvent,
   MyInscription, NotificationPreferences, Ranking, Reservation, Technique, User,
 } from "../types";
@@ -85,9 +85,14 @@ export const athletesApi = {
   // Maître de salle
   clubAthletes: () => unwrap(api.get<Envelope<Athlete[]>>("/clubs/me/athletes", { params: { limit: 500 } })),
   clubAthletesPending: () => unwrap(api.get<Envelope<Athlete[]>>("/clubs/me/athletes/pending")),
+  createInClub: (p: {
+    nom: string; prenom: string; email?: string; telephone?: string;
+    sexe?: "M" | "F"; categorie_poids?: string; grade?: Grade;
+  }) => unwrap(api.post<Envelope<CreatedAccount>>("/clubs/me/athletes", p)),
   validate: (id: string) => api.put(`/clubs/me/athletes/${id}/validate`),
   reject: (id: string, motif: string) => api.put(`/clubs/me/athletes/${id}/reject`, { motif }),
   remove: (id: string) => api.delete(`/clubs/me/athletes/${id}`),
+  resetPassword: (id: string) => unwrap(api.put<Envelope<CreatedAccount>>(`/clubs/me/athletes/${id}/password`)),
   updateGrade: (id: string, grade: Grade) => api.put(`/clubs/me/athletes/${id}/grade`, { grade }),
   detail: (id: string) => unwrap(api.get<Envelope<Athlete>>(`/athletes/${id}`)),
   updateDocsByMaitre: (id: string, p: { licence_url?: string; certificat_medical_url?: string }) =>

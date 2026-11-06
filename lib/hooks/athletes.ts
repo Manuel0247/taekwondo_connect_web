@@ -16,6 +16,19 @@ export const useClubAthletes = () => useQuery({ queryKey: ["clubAthletes"], quer
 export const useClubAthletesPending = () =>
   useQuery({ queryKey: ["clubAthletesPending"], queryFn: athletesApi.clubAthletesPending });
 
+// Le maître crée lui-même le compte d'un athlète ; la page affiche ensuite les identifiants
+export function useCreateClubAthlete() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: athletesApi.createInClub,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["clubAthletes"] });
+      toast.success("Athlète ajouté au club");
+    },
+    onError: onErr,
+  });
+}
+
 export const useAthleteDetail = (id: string) =>
   useQuery({ queryKey: ["athlete", id], queryFn: () => athletesApi.detail(id), enabled: !!id });
 
@@ -55,6 +68,11 @@ export function useUpdateAthleteGrade() {
     },
     onError: onErr,
   });
+}
+
+// Nouveau mot de passe provisoire (l'athlète sans email ne peut pas faire « mot de passe oublié »)
+export function useResetAthletePassword() {
+  return useMutation({ mutationFn: athletesApi.resetPassword, onError: onErr });
 }
 
 export function useRemoveAthlete() {

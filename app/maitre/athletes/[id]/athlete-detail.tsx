@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Award, Check, ExternalLink, FileText, Pencil, UserMinus, Upload, RefreshCw } from "lucide-react";
+import { Award, Check, Copy, ExternalLink, FileText, KeyRound, Pencil, UserMinus, Upload, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { uploadsApi } from "@/lib/api/endpoints";
 import { extractApiError } from "@/lib/api-error";
 import {
-  useAthleteDetail, useRemoveAthlete, useUpdateAthleteDocsByMaitre, useUpdateAthleteGrade, useUpdateAthleteLicenceByMaitre,
+  useAthleteDetail, useRemoveAthlete, useResetAthletePassword, useUpdateAthleteDocsByMaitre, useUpdateAthleteGrade, useUpdateAthleteLicenceByMaitre,
 } from "@/lib/hooks/athletes";
 import { GRADES, GRADE_COLORS, GRADE_LABELS, gradeAccent } from "@/lib/config";
 import { formatDate, toDateInput } from "@/lib/format";
 import { cn, storageUrl } from "@/lib/utils";
-import type { Grade } from "@/lib/types";
+import type { CreatedAccount, Grade } from "@/lib/types";
 import { PageContainer, PageHeader } from "@/components/layout/page";
 import { Avatar, Card, ErrorState, GradeChip, InfoRow, SkeletonList } from "@/components/ui/display";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,8 @@ export function AthleteDetail({ id }: { id: string }) {
   const { data: athlete, isLoading, isError, refetch } = useAthleteDetail(id);
   const updateGrade = useUpdateAthleteGrade();
   const remove = useRemoveAthlete();
+  const resetPassword = useResetAthletePassword();
+  const [newCreds, setNewCreds] = useState<CreatedAccount | null>(null);
   const updateDocs = useUpdateAthleteDocsByMaitre(id);
   const updateLicence = useUpdateAthleteLicenceByMaitre(id);
 
@@ -81,6 +83,31 @@ export function AthleteDetail({ id }: { id: string }) {
     }
   };
 
+  const onResetPassword = async () => {
+    if (
+      await confirm({
+        title: "Réinitialiser le mot de passe",
+        message: `Un nouveau mot de passe provisoire sera généré pour ${name}. L'ancien ne fonctionnera plus et ses sessions ouvertes seront fermées. Continuer ?`,
+        confirmLabel: "Réinitialiser",
+      })
+    ) {
+      resetPassword.mutate(id, { onSuccess: setNewCreds });
+    }
+  };
+
+  const copyCreds = async () => {
+    if (!newCreds) return;
+    try {
+      await navigator.clipboard.writeText(
+        `Bonjour ${athlete.user?.prenom ?? ""}, votre mot de passe LCC Taekwondo a été réinitialisé.\n` +
+          `Identifiant : ${newCreds.identifiant}\nMot de passe provisoire : ${newCreds.mot_de_passe_provisoire}`,
+      );
+      toast.success("Identifiants copiés");
+    } catch {
+      toast.error("Copie impossible, notez les identifiants à la main");
+    }
+  };
+
   const expired = athlete.licence_expiration && new Date(athlete.licence_expiration) < new Date();
 
   return (
@@ -91,7 +118,7 @@ export function AthleteDetail({ id }: { id: string }) {
           <Card className="flex flex-col items-center p-6 text-center">
             <Avatar src={athlete.user?.photo_url ?? athlete.photo_url} name={name} size={88} />
             <p className="mt-3 text-xl font-extrabold text-white">{name}</p>
-            <p className="text-sm break-all text-muted">{athlete.user?.email ?? athlete.email}</p>
+            <p className="text-sm break-all text-muted">{athlete.user?.email ?? athlete.user?.identifiant ?? athlete.email}</p>
             {athlete.user?.telephone && <p className="text-sm text-muted">{athlete.user.telephone}</p>}
             <GradeChip grade={athlete.grade} className="mt-3" />
             <div className="mt-4 w-full border-t border-line pt-3">
@@ -101,6 +128,11 @@ export function AthleteDetail({ id }: { id: string }) {
           <Button variant="secondary" fullWidth icon={<Award className="size-4" />} onClick={() => setGradeOpen(true)}>
             Mettre à jour le grade
           </Button>
+          {athlete.statut_club === "valide" && (
+            <Button variant="outline" fullWidth icon={<KeyRound className="size-4" />} loading={resetPassword.isPending} onClick={onResetPassword}>
+              Réinitialiser le mot de passe
+            </Button>
+          )}
           {athlete.statut_club === "valide" && (
             <Button variant="danger" fullWidth icon={<UserMinus className="size-4" />} loading={remove.isPending} onClick={onRemove}>
               Retirer du club
@@ -149,6 +181,36 @@ export function AthleteDetail({ id }: { id: string }) {
           </Card>
         </div>
       </PageContainer>
+
+      {/* Nouveau mot de passe provisoire */}
+      <Dialog
+        open={!!newCreds}
+        onClose={() => setNewCreds(null)}
+        title="Nouveau mot de passe"
+        size="sm"
+        footer={
+          <>
+            <Button variant="subtle" fullWidth onClick={() => setNewCreds(null)}>
+              Fermer
+            </Button>
+            <Button variant="secondary" fullWidth icon={<Copy className="size-4" />} onClick={copyCreds}>
+              Copier
+            </Button>
+          </>
+        }
+      >
+        <p className="mb-4 text-sm text-muted">
+          {newCreds?.email_envoye
+            ? `Envoyé à ${newCreds.user.email}. Notez-le aussi au cas où.`
+            : "Transmettez ces identifiants à l'athlète : ils ne seront plus affichés ensuite."}
+        </p>
+        <dl className="rounded-lg border border-line bg-ink/40 p-4">
+          <dt className="text-xs font-semibold tracking-wide text-muted uppercase">Identifiant</dt>
+          <dd className="mb-3 font-mono text-lg font-bold break-all text-white select-all">{newCreds?.identifiant}</dd>
+          <dt className="text-xs font-semibold tracking-wide text-muted uppercase">Mot de passe provisoire</dt>
+          <dd className="font-mono text-lg font-bold text-white select-all">{newCreds?.mot_de_passe_provisoire}</dd>
+        </dl>
+      </Dialog>
 
       {/* Choix du grade */}
       <Dialog open={gradeOpen} onClose={() => setGradeOpen(false)} title="Choisir un grade" size="sm">

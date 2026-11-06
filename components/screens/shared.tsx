@@ -139,7 +139,7 @@ export function AccountScreen({ backHref, accent = "primary" }: { backHref: stri
 
   return (
     <>
-      <PageHeader title="Mon compte" subtitle={user?.email} backHref={backHref} size="lg" />
+      <PageHeader title="Mon compte" subtitle={user?.email ?? user?.identifiant ?? undefined} backHref={backHref} size="lg" />
       <PageContainer size="lg" className="mt-4 grid grid-cols-1 gap-6 md:mt-0 lg:grid-cols-2">
         <Card className="p-5 sm:p-6">
           <h2 className="mb-1 text-lg font-bold text-white">Informations personnelles</h2>

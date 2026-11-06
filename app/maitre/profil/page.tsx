@@ -33,7 +33,7 @@ export default function MaitreProfilePage() {
           <Card className="flex flex-col items-center p-6 text-center">
             <PhotoUploader src={user?.photo_url} name={fullName(user)} model="user" modelId={user?.id} />
             <p className="mt-3 text-xl font-extrabold text-white">{fullName(user)}</p>
-            <p className="text-sm break-all text-muted">{user?.email}</p>
+            <p className="text-sm break-all text-muted">{user?.email ?? user?.identifiant}</p>
             <span className="mt-3 rounded-full bg-secondary/20 px-3 py-1 text-xs font-bold text-secondary-light">Maître de salle</span>
           </Card>
           {c && (

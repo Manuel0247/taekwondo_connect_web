@@ -11,7 +11,8 @@ export const passwordRule = z
 export const emailRule = z.string().trim().email("Email invalide");
 
 export const loginSchema = z.object({
-  email: emailRule,
+  // Email ou identifiant (comptes créés par un maître ou l'admin, parfois sans email)
+  email: z.string().trim().min(1, "Email ou identifiant requis"),
   mot_de_passe: z.string().min(1, "Mot de passe requis"),
 });
 

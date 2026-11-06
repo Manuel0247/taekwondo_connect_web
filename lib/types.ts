@@ -6,11 +6,20 @@ export interface User {
   id: string;
   nom: string;
   prenom: string;
-  email: string;
+  email: string | null;          // facultatif pour les comptes créés par un maître ou l'admin
+  identifiant?: string | null;   // permet alors de se connecter sans email
   role: UserRole;
   telephone?: string | null;
   photo_url?: string | null;
   created_at?: string;
+}
+
+/** Réponse de création d'un compte pour quelqu'un d'autre (athlète par son maître). */
+export interface CreatedAccount {
+  user: User;
+  identifiant: string;
+  mot_de_passe_provisoire: string;
+  email_envoye: boolean;
 }
 
 export type Grade = "blanc" | "jaune" | "orange" | "vert" | "bleu" | "rouge" | "noir";

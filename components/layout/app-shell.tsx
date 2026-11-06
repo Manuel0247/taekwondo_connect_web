@@ -108,7 +108,7 @@ function ShellLayout({ role, children }: { role: ShellRole; children: ReactNode 
             <Avatar src={user?.photo_url} name={fullName(user)} size={40} className="mx-auto lg:mx-0" />
             <div className="hidden min-w-0 flex-1 lg:block">
               <p className="truncate text-sm font-bold text-white">{fullName(user)}</p>
-              <p className="truncate text-xs text-muted">{user?.email}</p>
+              <p className="truncate text-xs text-muted">{user?.email ?? user?.identifiant}</p>
             </div>
             <button
               type="button"

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, Clock, Lock, Mail } from "lucide-react";
+import { AlertCircle, Clock, Lock, User } from "lucide-react";
 import { loginSchema } from "@/lib/validation";
 import { useLogin } from "@/lib/hooks/auth";
 import { apiErrorCode, extractApiError } from "@/lib/api-error";
@@ -64,12 +64,13 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit((d) => login.mutate(d))} noValidate>
         <Input
-          label="Email"
-          type="email"
-          autoComplete="email"
-          inputMode="email"
-          placeholder="exemple@email.com"
-          leftIcon={<Mail />}
+          label="Email ou identifiant"
+          type="text"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
+          placeholder="exemple@email.com ou jean.konan"
+          leftIcon={<User />}
           error={errors.email?.message}
           {...register("email")}
         />
