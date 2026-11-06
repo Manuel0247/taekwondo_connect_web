@@ -10,12 +10,13 @@ import {
   useUpdateAccount, useUserMe,
 } from "@/lib/hooks/misc";
 import { changePasswordSchema } from "@/lib/validation";
-import { PASSWORD_HINT } from "@/lib/config";
+import { DANS, GRADES, GRADE_COLORS, GRADE_SHORT, PASSWORD_HINT, danLabel } from "@/lib/config";
 import { useAuthStore } from "@/lib/stores";
-import type { NotificationPreferences } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import type { Grade, NotificationPreferences } from "@/lib/types";
 import { PageContainer, PageHeader } from "@/components/layout/page";
 import { Card, EmptyState, ErrorState, SkeletonList } from "@/components/ui/display";
-import { Switch } from "@/components/ui/controls";
+import { Chip, Switch } from "@/components/ui/controls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { NotificationItem } from "@/components/domain/cards";
@@ -124,7 +125,52 @@ const identitySchema = z.object({
   telephone: z.string().trim().max(30).optional(),
 });
 
-export function AccountScreen({ backHref, accent = "primary" }: { backHref: string; accent?: "primary" | "secondary" }) {
+/** Ceinture du maître de salle, affichée aux athlètes sur la page du club */
+function BeltCard({ variant }: { variant: "primary" | "secondary" }) {
+  const user = useAuthStore((s) => s.user);
+  const update = useUpdateAccount();
+  const [grade, setGrade] = useState<Grade | null>(user?.grade ?? null);
+  const [dan, setDan] = useState(user?.dan ?? 1);
+
+  return (
+    <Card className="p-5 sm:p-6 lg:col-span-2">
+      <h2 className="mb-1 text-lg font-bold text-white">Ma ceinture</h2>
+      <p className="mb-5 text-sm text-muted">Affichée aux athlètes sur la page de votre club.</p>
+      <div className="mb-5 flex flex-wrap gap-2">
+        {GRADES.map((g) => {
+          const c = GRADE_COLORS[g];
+          const on = grade === g;
+          return (
+            <button
+              key={g}
+              type="button"
+              aria-pressed={on}
+              onClick={() => setGrade(on ? null : g)}
+              className={cn("h-9 rounded-full border px-4 text-[13px] font-semibold transition-colors", !on && "border-line bg-surface text-muted hover:text-white")}
+              style={on ? { background: c.bg, color: c.text, borderColor: c.border ?? c.bg } : undefined}
+            >
+              {GRADE_SHORT[g]}
+            </button>
+          );
+        })}
+      </div>
+      {grade === "noir" && (
+        <div className="mb-5 flex flex-wrap gap-2">
+          {DANS.map((d) => (
+            <Chip key={d} color="secondary" active={dan === d} onClick={() => setDan(d)}>
+              {danLabel(d)}
+            </Chip>
+          ))}
+        </div>
+      )}
+      <Button variant={variant} loading={update.isPending} onClick={() => update.mutate({ grade, dan: grade === "noir" ? dan : null })}>
+        Enregistrer ma ceinture
+      </Button>
+    </Card>
+  );
+}
+
+export function AccountScreen({ backHref, accent = "primary", showBelt = false }: { backHref: string; accent?: "primary" | "secondary"; showBelt?: boolean }) {
   const user = useAuthStore((s) => s.user);
   const me = useUserMe();
   const update = useUpdateAccount();
@@ -174,6 +220,8 @@ export function AccountScreen({ backHref, accent = "primary" }: { backHref: stri
             </Button>
           </form>
         </Card>
+
+        {showBelt && <BeltCard variant={variant} />}
       </PageContainer>
     </>
   );

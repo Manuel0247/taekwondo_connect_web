@@ -10,7 +10,7 @@ import { DISCIPLINE_LABELS, JOURS } from "@/lib/config";
 import { capitalize, formatPrice, storageUrl, toNumber } from "@/lib/utils";
 import type { Course, Discipline } from "@/lib/types";
 import { PageContainer } from "@/components/layout/page";
-import { Card, ErrorState, SectionTitle, SkeletonList, Tag } from "@/components/ui/display";
+import { Card, ErrorState, GradeChip, SectionTitle, SkeletonList, Tag } from "@/components/ui/display";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/dialog";
 import { ClubLogo, ReservableCourse } from "@/components/domain/cards";
@@ -99,6 +99,12 @@ export function ClubDetail({ id }: { id: string }) {
 
       <PageContainer className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0 space-y-7">
+          {club.maitre_salle && (
+            <p className="flex flex-wrap items-center gap-2 text-sm text-muted">
+              Maître : <span className="font-bold text-white">{club.maitre_salle.prenom} {club.maitre_salle.nom}</span>
+              {club.maitre_salle.grade && <GradeChip grade={club.maitre_salle.grade} dan={club.maitre_salle.dan} />}
+            </p>
+          )}
           {club.description && <p className="text-[15px] leading-relaxed text-white/85">{club.description}</p>}
 
           {!!club.disciplines?.length && (

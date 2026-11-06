@@ -9,7 +9,7 @@ import { extractApiError } from "@/lib/api-error";
 import {
   useAthleteDetail, useRemoveAthlete, useResetAthletePassword, useUpdateAthleteDocsByMaitre, useUpdateAthleteGrade, useUpdateAthleteLicenceByMaitre,
 } from "@/lib/hooks/athletes";
-import { GRADES, GRADE_COLORS, GRADE_LABELS, gradeAccent } from "@/lib/config";
+import { DANS, GRADES, GRADE_COLORS, GRADE_LABELS, danLabel, gradeAccent } from "@/lib/config";
 import { formatDate, toDateInput } from "@/lib/format";
 import { cn, storageUrl } from "@/lib/utils";
 import type { CreatedAccount, Grade } from "@/lib/types";
@@ -37,6 +37,9 @@ export function AthleteDetail({ id }: { id: string }) {
   const updateLicence = useUpdateAthleteLicenceByMaitre(id);
 
   const [gradeOpen, setGradeOpen] = useState(false);
+  // Ceinture noire choisie : on demande ensuite le dan
+  const [choixDan, setChoixDan] = useState(false);
+  const fermerGrade = () => { setGradeOpen(false); setChoixDan(false); };
   const [licenceOpen, setLicenceOpen] = useState(false);
   const [numLicence, setNumLicence] = useState("");
   const [expiration, setExpiration] = useState("");
@@ -120,7 +123,7 @@ export function AthleteDetail({ id }: { id: string }) {
             <p className="mt-3 text-xl font-extrabold text-white">{name}</p>
             <p className="text-sm break-all text-muted">{athlete.user?.email ?? athlete.user?.identifiant ?? athlete.email}</p>
             {athlete.user?.telephone && <p className="text-sm text-muted">{athlete.user.telephone}</p>}
-            <GradeChip grade={athlete.grade} className="mt-3" />
+            <GradeChip grade={athlete.grade} dan={athlete.dan} className="mt-3" />
             <div className="mt-4 w-full border-t border-line pt-3">
               <GradeProgress current={athlete.grade} />
             </div>
@@ -213,7 +216,33 @@ export function AthleteDetail({ id }: { id: string }) {
       </Dialog>
 
       {/* Choix du grade */}
-      <Dialog open={gradeOpen} onClose={() => setGradeOpen(false)} title="Choisir un grade" size="sm">
+      <Dialog open={gradeOpen} onClose={fermerGrade} title={choixDan ? "Ceinture noire : choisir le dan" : "Choisir un grade"} size="sm">
+        {choixDan ? (
+          <div className="space-y-3">
+            <div className="grid grid-cols-3 gap-2">
+              {DANS.map((d) => {
+                const current = athlete.grade === "noir" && athlete.dan === d;
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    disabled={updateGrade.isPending}
+                    onClick={() => updateGrade.mutate({ id, grade: "noir", dan: d }, { onSuccess: fermerGrade })}
+                    className={cn(
+                      "flex h-11 items-center justify-center rounded-md border-[1.5px] text-sm font-semibold transition-colors",
+                      current ? "border-white bg-white/10 text-white" : "border-line text-muted hover:bg-white/5 hover:text-white",
+                    )}
+                  >
+                    {updateGrade.isPending && updateGrade.variables?.dan === d ? <Spinner className="size-4" /> : danLabel(d)}
+                  </button>
+                );
+              })}
+            </div>
+            <button type="button" onClick={() => setChoixDan(false)} className="w-full text-center text-sm text-muted hover:text-white">
+              Retour
+            </button>
+          </div>
+        ) : (
         <ul className="space-y-2" role="listbox" aria-label="Grades">
           {GRADES.map((g: Grade) => {
             const c = GRADE_COLORS[g];
@@ -225,7 +254,7 @@ export function AthleteDetail({ id }: { id: string }) {
                   role="option"
                   aria-selected={current}
                   disabled={updateGrade.isPending}
-                  onClick={() => updateGrade.mutate({ id, grade: g }, { onSuccess: () => setGradeOpen(false) })}
+                  onClick={() => (g === "noir" ? setChoixDan(true) : updateGrade.mutate({ id, grade: g }, { onSuccess: fermerGrade }))}
                   className={cn("flex w-full items-center gap-3 rounded-md border-[1.5px] px-4 py-3 text-left transition-colors hover:bg-white/5", current && "bg-white/5")}
                   style={{ borderColor: gradeAccent(g) }}
                 >
@@ -239,6 +268,7 @@ export function AthleteDetail({ id }: { id: string }) {
             );
           })}
         </ul>
+        )}
       </Dialog>
 
       {/* Informations de licence */}

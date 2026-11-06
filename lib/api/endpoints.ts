@@ -3,7 +3,7 @@ import { api, unwrap, type Envelope } from "./client";
 import type {
   Athlete, AthleteBadge, AthleteHistorique, AppNotification, Club, ClubDocument, Course, CreatedAccount,
   FavoriTechnique, Grade, Inscription, Invitation, InvitationSendResult, LeagueEvent,
-  MyInscription, NotificationPreferences, Ranking, Reservation, Technique, User,
+  EventClassement, MyInscription, NotificationPreferences, Reservation, Technique, User,
 } from "../types";
 
 export type Paginated<T> = { items: T[]; page: number; lastPage: number; total: number };
@@ -61,7 +61,8 @@ export const authApi = {
 export const usersApi = {
   me: () =>
     unwrap(api.get<Envelope<User & { notification_preference?: NotificationPreferences | null; telephone?: string | null }>>("/users/me")),
-  updateMe: (p: { nom?: string; prenom?: string; telephone?: string | null }) =>
+  // grade et dan ne sont pris en compte que pour un maître de salle
+  updateMe: (p: { nom?: string; prenom?: string; telephone?: string | null; grade?: Grade | null; dan?: number | null }) =>
     unwrap(api.put<Envelope<User>>("/users/me", p)),
   changePassword: (p: { ancien_mot_de_passe: string; mot_de_passe: string; mot_de_passe_confirmation: string }) =>
     api.put("/users/me/password", p),
@@ -76,7 +77,7 @@ export const athletesApi = {
     api.put("/athletes/me/documents", p),
   historique: () => unwrap(api.get<Envelope<AthleteHistorique>>("/athletes/me/historique")),
   badges: () => unwrap(api.get<Envelope<AthleteBadge[]>>("/athletes/me/badges")),
-  classement: () => unwrap(api.get<Envelope<Ranking[]>>("/athletes/me/classement")),
+  classement: () => unwrap(api.get<Envelope<EventClassement[]>>("/athletes/me/classement")),
   joinClub: (club_id: string) =>
     unwrap(api.put<Envelope<{ statut_club?: string }>>("/athletes/me/club", { club_id })),
   reservations: () => unwrap(api.get<Envelope<Reservation[]>>("/athletes/me/reservations")),
@@ -87,13 +88,14 @@ export const athletesApi = {
   clubAthletesPending: () => unwrap(api.get<Envelope<Athlete[]>>("/clubs/me/athletes/pending")),
   createInClub: (p: {
     nom: string; prenom: string; email?: string; telephone?: string;
-    sexe?: "M" | "F"; categorie_poids?: string; grade?: Grade;
+    sexe?: "M" | "F"; categorie_poids?: string; grade?: Grade; dan?: number;
   }) => unwrap(api.post<Envelope<CreatedAccount>>("/clubs/me/athletes", p)),
   validate: (id: string) => api.put(`/clubs/me/athletes/${id}/validate`),
   reject: (id: string, motif: string) => api.put(`/clubs/me/athletes/${id}/reject`, { motif }),
   remove: (id: string) => api.delete(`/clubs/me/athletes/${id}`),
   resetPassword: (id: string) => unwrap(api.put<Envelope<CreatedAccount>>(`/clubs/me/athletes/${id}/password`)),
-  updateGrade: (id: string, grade: Grade) => api.put(`/clubs/me/athletes/${id}/grade`, { grade }),
+  updateGrade: (id: string, grade: Grade, dan?: number) =>
+    api.put(`/clubs/me/athletes/${id}/grade`, { grade, dan: grade === "noir" ? dan ?? null : null }),
   detail: (id: string) => unwrap(api.get<Envelope<Athlete>>(`/athletes/${id}`)),
   updateDocsByMaitre: (id: string, p: { licence_url?: string; certificat_medical_url?: string }) =>
     api.put(`/clubs/me/athletes/${id}/documents`, p),

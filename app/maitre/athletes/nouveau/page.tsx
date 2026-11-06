@@ -7,7 +7,7 @@ import { Check, Copy, Mail, Phone, Share2, User } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useCreateClubAthlete } from "@/lib/hooks/athletes";
-import { GRADES, GRADE_COLORS, GRADE_SHORT, POIDS } from "@/lib/config";
+import { DANS, GRADES, GRADE_COLORS, GRADE_SHORT, POIDS, danLabel } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import type { CreatedAccount, Grade } from "@/lib/types";
 import { PageContainer, PageHeader } from "@/components/layout/page";
@@ -31,6 +31,7 @@ export default function AddAthletePage() {
   const create = useCreateClubAthlete();
   const [sexe, setSexe] = useState<"M" | "F">();
   const [grade, setGrade] = useState<Grade>("blanc");
+  const [dan, setDan] = useState(1);
   const [poids, setPoids] = useState<string>();
   const [created, setCreated] = useState<CreatedAccount | null>(null);
 
@@ -48,6 +49,7 @@ export default function AddAthletePage() {
         telephone: d.telephone || undefined,
         sexe,
         grade,
+        dan: grade === "noir" ? dan : undefined,
         categorie_poids: poids,
       },
       { onSuccess: setCreated },
@@ -120,6 +122,19 @@ export default function AddAthletePage() {
                   );
                 })}
               </div>
+
+              {grade === "noir" && (
+                <>
+                  <FieldLabel>Dan</FieldLabel>
+                  <div className="mb-5 flex flex-wrap gap-2">
+                    {DANS.map((d) => (
+                      <Chip key={d} color="secondary" active={dan === d} onClick={() => setDan(d)}>
+                        {danLabel(d)}
+                      </Chip>
+                    ))}
+                  </div>
+                </>
+              )}
 
               <FieldLabel>Catégorie de poids (facultatif)</FieldLabel>
               <div className="mb-6 flex flex-wrap gap-2">

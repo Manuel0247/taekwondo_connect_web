@@ -137,7 +137,7 @@ function AthletesTable({ athletes, pending }: { athletes: Athlete[]; pending: bo
                     </span>
                   </Link>
                 </td>
-                <td className="px-4 py-3"><GradeChip grade={a.grade} /></td>
+                <td className="px-4 py-3"><GradeChip grade={a.grade} dan={a.dan} /></td>
                 <td className="px-4 py-3 text-muted">{a.categorie_poids ?? "—"}</td>
                 <td className="px-4 py-3">
                   {a.numero_licence ? (

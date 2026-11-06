@@ -11,6 +11,8 @@ export interface User {
   role: UserRole;
   telephone?: string | null;
   photo_url?: string | null;
+  grade?: Grade | null;          // ceinture du maître de salle (affichée sur la page du club)
+  dan?: number | null;
   created_at?: string;
 }
 
@@ -36,6 +38,7 @@ export interface Athlete {
   sexe?: "M" | "F" | null;
   categorie_poids?: string | null;
   grade?: Grade | null;
+  dan?: number | null; // dan de la ceinture noire (1 à 9), affiché seulement côté maître
   club_id?: string | null;
   club?: Club | null;
   licence_url?: string | null;
@@ -67,6 +70,7 @@ export interface Club {
   latitude?: number | string | null;
   longitude?: number | string | null;
   maitre?: User;
+  maitre_salle?: User | null;
   distance?: number;
 }
 
@@ -88,6 +92,10 @@ export interface LeagueEvent {
   description?: string | null;
   organisateur?: string | null;
   mon_inscription?: Inscription | null;
+  // Participation : fixe (prix null = gratuit) ou variable selon le grade de l'athlète (FCFA)
+  tarif_type?: "fixe" | "variable";
+  prix?: number | null;
+  prix_par_grade?: Partial<Record<string, number>> | null; // clés : couleurs et noir_1 … noir_9
 }
 
 export type InscriptionStatut = "propose" | "en_attente" | "confirme" | "refuse" | "annule";
@@ -98,6 +106,7 @@ export interface Inscription {
   athlete?: Athlete;
   commentaire?: string | null;
   resultat?: string | null;
+  note?: number | null;
   points?: number | null;
 }
 
@@ -106,6 +115,9 @@ export interface MyInscription {
   statut: InscriptionStatut;
   commentaire?: string | null;
   resultat?: string | null;
+  note?: number | null;
+  montant_du?: number | null; // montant payé si validé, sinon tarif actuel ; null = rien à payer
+  paye_le?: string | null;
   event: LeagueEvent;
 }
 
@@ -195,6 +207,16 @@ export interface NotificationPreferences {
   notif_badges: boolean;
   rappel_j1: boolean;
   rappel_h2: boolean;
+}
+
+// Classement de l'athlète dans un événement terminé (GET /athletes/me/classement)
+export interface EventClassement {
+  event: { id: string; titre: string; type: "competition" | "passage_grade"; date_debut: string };
+  resultat: "or" | "argent" | "bronze" | "participant" | null;
+  points: number | null;
+  note: number | null;
+  rang: number | null;
+  participants: number;
 }
 
 export interface Ranking {

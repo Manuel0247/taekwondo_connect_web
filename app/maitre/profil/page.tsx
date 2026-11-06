@@ -9,7 +9,7 @@ import { useMyClub } from "@/lib/hooks/clubs";
 import { CLUB_STATUS } from "@/lib/config";
 import { fullName } from "@/lib/utils";
 import { PageContainer, PageHeader } from "@/components/layout/page";
-import { Badge, Card, SectionTitle } from "@/components/ui/display";
+import { Badge, Card, GradeChip, SectionTitle } from "@/components/ui/display";
 import { useConfirm } from "@/components/ui/dialog";
 import { ClubLogo } from "@/components/domain/cards";
 import { PhotoUploader } from "@/components/screens/photo-uploader";
@@ -34,6 +34,7 @@ export default function MaitreProfilePage() {
             <PhotoUploader src={user?.photo_url} name={fullName(user)} model="user" modelId={user?.id} />
             <p className="mt-3 text-xl font-extrabold text-white">{fullName(user)}</p>
             <p className="text-sm break-all text-muted">{user?.email ?? user?.identifiant}</p>
+            {user?.grade && <GradeChip grade={user.grade} dan={user.dan} className="mt-3" />}
             <span className="mt-3 rounded-full bg-secondary/20 px-3 py-1 text-xs font-bold text-secondary-light">Maître de salle</span>
           </Card>
           {c && (
@@ -57,7 +58,7 @@ export default function MaitreProfilePage() {
             <MenuLink href="/maitre/athletes/invitations" icon={<Mail />} label="Invitations" />
             <MenuLink href="/maitre/notifications" icon={<Bell />} label="Notifications" />
             <MenuLink href="/maitre/profil/notifications" icon={<Bell />} label="Préférences notifications" />
-            <MenuLink href="/maitre/profil/compte" icon={<UserCog />} label="Mon compte et mot de passe" />
+            <MenuLink href="/maitre/profil/compte" icon={<UserCog />} label="Mon profil, ma ceinture et mot de passe" />
             <button type="button" onClick={onLogout} className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-[15px] font-medium text-[#f87171] hover:bg-danger/10">
               <LogOut className="size-5" /> Se déconnecter
             </button>

@@ -78,7 +78,7 @@ export function ProposeAthletes({ id }: { id: string }) {
                     <Avatar src={i.athlete?.user?.photo_url} name={athleteName(i.athlete)} size={40} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-semibold text-white">{athleteName(i.athlete)}</p>
-                      <GradeChip grade={i.athlete?.grade} className="mt-1" />
+                      <GradeChip grade={i.athlete?.grade} dan={i.athlete?.dan} className="mt-1" />
                     </div>
                     <InscriptionBadge statut={i.statut} />
                     {(i.statut === "en_attente" || i.statut === "propose") && !isClosed && (
@@ -176,7 +176,7 @@ export function ProposeAthletes({ id }: { id: string }) {
                             <span className="block truncate text-sm font-semibold text-white">{athleteName(a)}</span>
                             <span className="text-xs text-muted">{a.categorie_poids ?? "Catégorie non renseignée"}</span>
                           </span>
-                          <GradeChip grade={a.grade} />
+                          <GradeChip grade={a.grade} dan={a.dan} />
                         </button>
                       </li>
                     );

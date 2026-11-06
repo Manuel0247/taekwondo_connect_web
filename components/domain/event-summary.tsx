@@ -1,11 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Calendar, CalendarCheck, Clock, MapPin, Users } from "lucide-react";
-import { EVENT_TYPES } from "@/lib/config";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { Calendar, CalendarCheck, Clock, MapPin, Users, Wallet } from "lucide-react";
+import { EVENT_TYPES, GRADE_SHORT, TARIF_GRADES, danLabel, tarifPourGrade } from "@/lib/config";
+import { formatDate, formatDateTime, formatFcfa } from "@/lib/format";
 import { toNumber } from "@/lib/utils";
-import type { LeagueEvent } from "@/lib/types";
+import type { Grade, LeagueEvent } from "@/lib/types";
 import { Card, InfoRow, ProgressBar, SectionTitle } from "../ui/display";
 import { LocationMap } from "../maps";
 import { EventBadge } from "./cards";
@@ -17,8 +17,15 @@ const STATUT_LABEL: Record<LeagueEvent["statut"], string> = {
   termine: "Terminé",
 };
 
+/** Participation : montant fixe, ou celui du grade donné (athlète) ; null = gratuit / non défini */
+function tarifTexte(event: LeagueEvent, grade?: Grade | null, dan?: number | null): string {
+  if (event.tarif_type !== "variable") return event.prix ? formatFcfa(event.prix) : "Gratuit";
+  const prix = tarifPourGrade(event.prix_par_grade, grade, dan);
+  return prix ? `${formatFcfa(prix)} (ceinture ${GRADE_SHORT[grade!].toLowerCase()})` : "Selon le grade";
+}
+
 /** Bloc d'informations d'un événement (EventDetailScreen du mobile) */
-export function EventSummary({ event, children }: { event: LeagueEvent; children?: ReactNode }) {
+export function EventSummary({ event, grade, dan, children }: { event: LeagueEvent; grade?: Grade | null; dan?: number | null; children?: ReactNode }) {
   const color = (EVENT_TYPES[event.type] ?? EVENT_TYPES.competition).color;
   const dispo = event.places_disponibles;
   const taken = dispo === null ? 0 : event.places_total - dispo;
@@ -47,6 +54,17 @@ export function EventSummary({ event, children }: { event: LeagueEvent; children
             <InfoRow icon={<Clock />} label="Date limite d'inscription" value={formatDate(event.date_limite_inscription)} />
           )}
           {event.organisateur && <InfoRow icon={<Users />} label="Organisateur" value={event.organisateur} />}
+          <InfoRow icon={<Wallet />} label="Participation" value={tarifTexte(event, grade, dan)} />
+          {/* Sans grade connu (maître), on détaille le tarif de chaque grade */}
+          {event.tarif_type === "variable" && !grade && (
+            <div className="flex flex-wrap gap-1.5 pb-2 pl-9">
+              {TARIF_GRADES.filter((g) => event.prix_par_grade?.[g.key] != null).map((g) => (
+                <span key={g.key} className="rounded-md bg-white/5 px-2 py-0.5 text-xs text-white/80">
+                  {GRADE_SHORT[g.grade]}{g.dan ? ` ${danLabel(g.dan)}` : ""} · {formatFcfa(event.prix_par_grade![g.key]!)}
+                </span>
+              ))}
+            </div>
+          )}
         </Card>
 
         <div className="space-y-4">

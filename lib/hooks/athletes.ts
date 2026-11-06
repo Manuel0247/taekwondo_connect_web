@@ -60,7 +60,7 @@ export function useRejectAthlete() {
 export function useUpdateAthleteGrade() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, grade }: { id: string; grade: Grade }) => athletesApi.updateGrade(id, grade),
+    mutationFn: ({ id, grade, dan }: { id: string; grade: Grade; dan?: number }) => athletesApi.updateGrade(id, grade, dan),
     onSuccess: (_, v) => {
       qc.invalidateQueries({ queryKey: ["clubAthletes"] });
       qc.invalidateQueries({ queryKey: ["athlete", v.id] });

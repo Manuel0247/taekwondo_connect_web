@@ -19,6 +19,26 @@ export const COLORS = {
 
 export const GRADES: Grade[] = ["blanc", "jaune", "orange", "vert", "bleu", "rouge", "noir"];
 
+export const DAN_MAX = 9;
+export const DANS = Array.from({ length: DAN_MAX }, (_, i) => i + 1);
+
+/** « 1er dan », « 2e dan »… */
+export function danLabel(dan: number): string {
+  return `${dan}${dan === 1 ? "er" : "e"} dan`;
+}
+
+/** Tarif d'un événement à tarif variable pour un grade (dan pour la ceinture noire, ancien tarif « noir » à défaut) */
+export function tarifPourGrade(prixParGrade: Partial<Record<string, number>> | null | undefined, grade?: Grade | null, dan?: number | null): number | undefined {
+  if (!grade || !prixParGrade) return undefined;
+  return (grade === "noir" && dan ? prixParGrade[`noir_${dan}`] : undefined) ?? prixParGrade[grade];
+}
+
+/** Grades ayant un tarif propre : ceintures de couleur, puis chaque dan (clé API « noir_2 ») */
+export const TARIF_GRADES: { key: string; grade: Grade; dan?: number }[] = [
+  ...GRADES.filter((g) => g !== "noir").map((g) => ({ key: g, grade: g })),
+  ...DANS.map((d) => ({ key: `noir_${d}`, grade: "noir" as Grade, dan: d })),
+];
+
 export const GRADE_COLORS: Record<Grade, { bg: string; text: string; border?: string }> = {
   blanc: { bg: "#E5E5EA", text: "#3A3A3C" },
   jaune: { bg: "#FFD700", text: "#1C1C1E" },

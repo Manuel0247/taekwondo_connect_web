@@ -2,6 +2,10 @@
 
 const safe = (s: string) => new Date(s);
 
+export function formatFcfa(n: number): string {
+  return `${n.toLocaleString("fr-FR")} FCFA`;
+}
+
 export function formatDate(s: string): string {
   return safe(s).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 }

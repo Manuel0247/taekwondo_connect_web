@@ -8,14 +8,15 @@ import { useAthleteBadges, useAthleteClassement, useMyAthleteProfile } from "@/l
 import { useMyReservations } from "@/lib/hooks/courses";
 import { useMyEventInscriptions } from "@/lib/hooks/events";
 import { useLogout } from "@/lib/hooks/auth";
-import { formatDateTime } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 import { cn, fullName, storageUrl } from "@/lib/utils";
 import { PageContainer, PageHeader } from "@/components/layout/page";
 import { Avatar, Card, ErrorState, GradeChip, SectionTitle, SkeletonList } from "@/components/ui/display";
 import { useConfirm } from "@/components/ui/dialog";
 import { GradeProgress } from "@/components/domain/grades";
 
-const RANK_LABEL: Record<string, string> = { poids: "Poids", grade: "Grade", age: "Âge" };
+const RESULTAT_LABEL: Record<string, string> = { or: "Or", argent: "Argent", bronze: "Bronze", participant: "Participant" };
+const RANG_COLOR: Record<number, string> = { 1: "text-[#FFD700]", 2: "text-[#C0C0C0]", 3: "text-[#CD7F32]" };
 
 export default function AthleteProfilePage() {
   const { data: athlete, isLoading, isError, refetch } = useMyAthleteProfile();
@@ -85,17 +86,39 @@ export default function AthleteProfilePage() {
 
           {(ranking.data ?? []).length > 0 && (
             <section>
-              <SectionTitle>Mon classement</SectionTitle>
-              <div className="grid grid-cols-3 gap-3">
-                {ranking.data!.slice(0, 3).map((r) => (
-                  <Card key={`${r.categorie}-${r.valeur_categorie}`} className="text-center">
-                    <p className="text-2xl font-extrabold text-primary">#{r.position}</p>
-                    <p className="mt-1 text-xs font-semibold text-white">{RANK_LABEL[r.categorie] ?? r.categorie}</p>
-                    <p className="truncate text-xs text-muted capitalize">{r.valeur_categorie}</p>
-                    <p className="mt-1 text-[11px] text-secondary-light">{r.points} pts · {r.saison}</p>
-                  </Card>
-                ))}
-              </div>
+              <SectionTitle>Mes classements</SectionTitle>
+              <ul className="space-y-2">
+                {ranking.data!.map((c) => {
+                  const competition = c.event.type === "competition";
+                  const detail = competition
+                    ? [c.resultat ? RESULTAT_LABEL[c.resultat] : "Sans résultat", c.points != null ? `${c.points} pts` : null].filter(Boolean).join(" · ")
+                    : c.note != null ? `Note : ${c.note}` : "Non noté";
+                  return (
+                    <li key={c.event.id}>
+                      <Link
+                        href={`/athlete/evenements/${c.event.id}`}
+                        className={cn(
+                          "flex items-center gap-4 rounded-lg border-l-4 bg-surface p-3 transition-colors hover:bg-white/5",
+                          competition ? "border-primary" : "border-blue-600",
+                        )}
+                      >
+                        <div className="w-14 shrink-0 text-center">
+                          <p className={cn("text-xl font-extrabold", c.rang != null ? RANG_COLOR[c.rang] ?? "text-white" : "text-muted")}>
+                            {c.rang != null ? `${c.rang}${c.rang === 1 ? "er" : "e"}` : "—"}
+                          </p>
+                          <p className="text-[11px] text-muted">sur {c.participants}</p>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-bold text-white">{c.event.titre}</p>
+                          <p className="text-xs text-muted">{competition ? "Compétition" : "Passage de grade"} · {formatDate(c.event.date_debut)}</p>
+                          <p className="mt-0.5 text-xs font-semibold text-primary">{detail}</p>
+                        </div>
+                        <ChevronRight className="size-4 shrink-0 text-muted" />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </section>
           )}
 

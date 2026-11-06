@@ -334,7 +334,7 @@ export function AthleteRow({
         <p className="truncate text-[15px] font-semibold text-white">{name}</p>
         {showDate && athlete.created_at && <p className="mt-0.5 text-xs text-muted">Inscrit le {formatShortDate(athlete.created_at)}</p>}
       </div>
-      <GradeChip grade={athlete.grade} />
+      <GradeChip grade={athlete.grade} dan={athlete.dan} />
       {trailing}
       {href && <ChevronRight className="size-4 shrink-0 text-muted" />}
     </>

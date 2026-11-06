@@ -90,7 +90,7 @@ export function useUpdateAccount() {
   return useMutation({
     mutationFn: usersApi.updateMe,
     onSuccess: (u) => {
-      if (user) setUser({ ...user, nom: u.nom, prenom: u.prenom, telephone: u.telephone });
+      if (user) setUser({ ...user, nom: u.nom, prenom: u.prenom, telephone: u.telephone, grade: u.grade, dan: u.dan });
       qc.invalidateQueries({ queryKey: ["userMe"] });
       qc.invalidateQueries({ queryKey: ["athleteMe"] });
       toast.success("Informations mises à jour");

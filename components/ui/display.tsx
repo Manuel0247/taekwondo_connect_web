@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { AlertTriangle, RefreshCw, SearchX, type LucideIcon } from "lucide-react";
 import { cn, storageUrl } from "@/lib/utils";
-import { GRADE_COLORS, GRADE_SHORT } from "@/lib/config";
+import { GRADE_COLORS, GRADE_SHORT, danLabel } from "@/lib/config";
 import type { Grade } from "@/lib/types";
 import { Button } from "./button";
 
@@ -60,7 +60,8 @@ export function Tag({ label, color = "#2EA55A", className }: { label: string; co
   );
 }
 
-export function GradeChip({ grade, className }: { grade?: Grade | null; className?: string }) {
+/** `dan` : à passer seulement côté maître (l'athlète ne voit que « Noir ») */
+export function GradeChip({ grade, dan, className }: { grade?: Grade | null; dan?: number | null; className?: string }) {
   const g = grade ?? "blanc";
   const c = GRADE_COLORS[g] ?? GRADE_COLORS.blanc;
   return (
@@ -68,7 +69,7 @@ export function GradeChip({ grade, className }: { grade?: Grade | null; classNam
       className={cn("inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-bold", className)}
       style={{ backgroundColor: c.bg, color: c.text, border: c.border ? `1px solid ${c.border}` : undefined }}
     >
-      {GRADE_SHORT[g]}
+      {GRADE_SHORT[g]}{g === "noir" && dan ? ` · ${danLabel(dan)}` : ""}
     </span>
   );
 }
