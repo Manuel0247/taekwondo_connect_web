@@ -35,6 +35,21 @@ const meIcon = L.divIcon({ className: "lcc-dot", html: '<div class="lcc-dot-inne
 
 type LatLng = { latitude: number; longitude: number };
 
+/**
+ * Next (cacheComponents) garde la page quittée en mémoire, masquée : react-leaflet détruit alors la carte
+ * (map.remove) mais la réutiliserait au retour → plantage. On ne monte la carte que pendant que la page est
+ * active, pour qu'elle soit recréée à chaque réaffichage.
+ */
+function useActive() {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setActive(true);
+    return () => setActive(false);
+  }, []);
+  return active;
+}
+
 function useGeolocation() {
   const [locating, setLocating] = useState(false);
   const locate = (onOk: (p: LatLng) => void, silent = false) => {
@@ -77,10 +92,16 @@ function LocateButton({ onClick, locating, label = "Ma position" }: { onClick: (
   );
 }
 
+// Carte masquée (vue liste, display:none) : taille nulle → flyTo calcule des NaN et lève une exception
+const isVisible = (map: L.Map) => {
+  const { x, y } = map.getSize();
+  return x > 0 && y > 0;
+};
+
 function FlyTo({ target, zoom }: { target: LatLng | null; zoom: number }) {
   const map = useMap();
   useEffect(() => {
-    if (target) map.flyTo([target.latitude, target.longitude], zoom, { duration: 0.6 });
+    if (target && isVisible(map)) map.flyTo([target.latitude, target.longitude], zoom, { duration: 0.6 });
   }, [target, zoom, map]);
   return null;
 }
@@ -93,22 +114,29 @@ function FitClubs({ clubs, focusId }: { clubs: MapClub[]; focusId?: string | nul
   const map = useMap();
   const key = clubs.map((c) => c.id).join(",");
   useEffect(() => {
-    if (!clubs.length) return;
-    if (clubs.length === 1) map.setView([clubs[0].latitude, clubs[0].longitude], 14);
-    else map.fitBounds(L.latLngBounds(clubs.map((c) => [c.latitude, c.longitude])), { padding: [48, 48], maxZoom: 14 });
+    // Cadrage reporté tant que la carte est masquée, puis fait à son affichage
+    let pending = true;
+    const fit = () => {
+      if (!clubs.length || !isVisible(map)) return;
+      pending = false;
+      if (clubs.length === 1) map.setView([clubs[0].latitude, clubs[0].longitude], 14);
+      else map.fitBounds(L.latLngBounds(clubs.map((c) => [c.latitude, c.longitude])), { padding: [48, 48], maxZoom: 14 });
+    };
+    fit();
+    // La carte peut changer de taille (bascule liste/carte, panneau latéral)
+    const ro = new ResizeObserver(() => {
+      map.invalidateSize();
+      if (pending) fit();
+    });
+    ro.observe(map.getContainer());
+    return () => ro.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, map]);
   useEffect(() => {
     const c = clubs.find((x) => x.id === focusId);
-    if (c) map.flyTo([c.latitude, c.longitude], Math.max(map.getZoom(), 14), { duration: 0.5 });
+    if (c && isVisible(map)) map.flyTo([c.latitude, c.longitude], Math.max(map.getZoom(), 14), { duration: 0.5 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusId, map]);
-  // La carte peut changer de taille (bascule liste/carte, panneau latéral)
-  useEffect(() => {
-    const ro = new ResizeObserver(() => map.invalidateSize());
-    ro.observe(map.getContainer());
-    return () => ro.disconnect();
-  }, [map]);
   return null;
 }
 
@@ -129,6 +157,7 @@ export function ClubsMap({
   const [flyTarget, setFlyTarget] = useState<LatLng | null>(null);
   const { locating, locate } = useGeolocation();
   const markers = useRef<Record<string, L.Marker | null>>({});
+  const active = useActive();
 
   // Position récupérée silencieusement à l'ouverture (point bleu, sans zoom) — comme le mobile
   useEffect(() => {
@@ -137,11 +166,14 @@ export function ClubsMap({
   }, []);
 
   useEffect(() => {
-    if (focusId) markers.current[focusId]?.openPopup();
+    const m = focusId ? markers.current[focusId] : null;
+    // Pas de popup (ni d'autoPan) sur une carte masquée
+    if (m && m.getElement()?.offsetParent) m.openPopup();
   }, [focusId]);
 
   return (
     <div className={cn("relative isolate overflow-hidden", className)}>
+      {active && (
       <MapContainer center={ABIDJAN} zoom={12} className="h-full w-full" scrollWheelZoom>
         <TileLayer url={TILE_URL} attribution={ATTRIBUTION} maxZoom={19} />
         <FitClubs clubs={clubs} focusId={focusId} />
@@ -173,6 +205,7 @@ export function ClubsMap({
           </Marker>
         ))}
       </MapContainer>
+      )}
       <LocateButton
         locating={locating}
         onClick={() =>
@@ -189,9 +222,11 @@ export function ClubsMap({
 // ── Carte de localisation (lecture seule) — équivalent de ClubMap.tsx ───────
 
 export function LocationMap({ latitude, longitude, title, className }: LatLng & { title?: string; className?: string }) {
+  const active = useActive();
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
   return (
     <div className={cn("relative isolate overflow-hidden rounded-lg border border-line", className)}>
+      {active && (
       <MapContainer center={[latitude, longitude]} zoom={15} className="h-full w-full" scrollWheelZoom={false}>
         <TileLayer url={TILE_URL} attribution={ATTRIBUTION} maxZoom={19} />
         <Marker position={[latitude, longitude]} icon={pinIcon()}>
@@ -202,6 +237,7 @@ export function LocationMap({ latitude, longitude, title, className }: LatLng & 
           )}
         </Marker>
       </MapContainer>
+      )}
       <a
         href={directions}
         target="_blank"
@@ -235,6 +271,7 @@ export function LocationPicker({
 }) {
   const { locating, locate } = useGeolocation();
   const [flyTarget, setFlyTarget] = useState<LatLng | null>(null);
+  const active = useActive();
   const center = useMemo<[number, number]>(
     () => (value ? [value.latitude, value.longitude] : ABIDJAN),
     // centre initial uniquement
@@ -255,6 +292,7 @@ export function LocationPicker({
 
   return (
     <div className={cn("relative isolate overflow-hidden rounded-lg border border-line", className)}>
+      {active && (
       <MapContainer center={center} zoom={value ? 16 : 12} className="h-full w-full" scrollWheelZoom>
         <TileLayer url={TILE_URL} attribution={ATTRIBUTION} maxZoom={19} />
         <ClickToPlace onPick={onChange} />
@@ -273,6 +311,7 @@ export function LocationPicker({
           />
         )}
       </MapContainer>
+      )}
       {!value && !locating && (
         <div className="pointer-events-none absolute inset-x-0 top-4 z-[500] flex justify-center px-4">
           <p className="rounded-full border border-line bg-surface/95 px-4 py-2 text-center text-xs font-semibold text-white shadow-lg">
