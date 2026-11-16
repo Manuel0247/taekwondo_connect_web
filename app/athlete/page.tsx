@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertCircle, CalendarDays, ChevronRight, RefreshCw, Shield, Trophy } from "lucide-react";
+import { AlertCircle, CalendarDays, ChevronRight, RefreshCw, Shield, ShoppingBag, Trophy } from "lucide-react";
 import { useAuthStore } from "@/lib/stores";
 import { useMyAthleteProfile } from "@/lib/hooks/athletes";
 import { useCancelReservation, useClubCourses, useMyReservations, useReserveCourse } from "@/lib/hooks/courses";
@@ -190,6 +190,20 @@ export default function AthleteHomePage() {
               <div className="flex-1">
                 <p className="text-[15px] font-bold text-white">Mon Calendrier</p>
                 <p className="text-xs text-muted">Voir mes événements par date</p>
+              </div>
+              <ChevronRight className="size-[18px] text-muted" />
+            </Link>
+
+            <Link
+              href="/athlete/boutique"
+              className="flex items-center gap-3 rounded-lg bg-surface p-4 transition-colors hover:bg-surface-2"
+            >
+              <span className="grid size-10 place-items-center rounded-md bg-primary/12 text-primary">
+                <ShoppingBag className="size-5" />
+              </span>
+              <div className="flex-1">
+                <p className="text-[15px] font-bold text-white">Boutique</p>
+                <p className="text-xs text-muted">Tenues et équipements de la ligue</p>
               </div>
               <ChevronRight className="size-[18px] text-muted" />
             </Link>

@@ -1,6 +1,6 @@
 import {
   Bell, Building2, CalendarDays, CalendarRange, CircleUserRound, Heart, Home, LayoutGrid, Library, Mail,
-  Shield, Trophy, Users, type LucideIcon,
+  Shield, ShoppingBag, Trophy, Users, type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/types";
 
@@ -32,6 +32,7 @@ export const NAV: Record<Exclude<UserRole, "admin">, NavConfig> = {
     secondary: [
       { href: "/athlete/calendrier", label: "Mon calendrier", icon: CalendarDays },
       { href: "/athlete/techniques/favoris", label: "Mes favoris", icon: Heart },
+      { href: "/athlete/boutique", label: "Boutique", icon: ShoppingBag },
       { href: "/athlete/notifications", label: "Notifications", icon: Bell, badge: "notifications" },
     ],
   },
@@ -50,6 +51,7 @@ export const NAV: Record<Exclude<UserRole, "admin">, NavConfig> = {
     secondary: [
       { href: "/maitre/calendrier", label: "Calendrier", icon: CalendarRange },
       { href: "/maitre/athletes/invitations", label: "Invitations", icon: Mail },
+      { href: "/maitre/boutique", label: "Boutique", icon: ShoppingBag },
       { href: "/maitre/notifications", label: "Notifications", icon: Bell, badge: "notifications" },
     ],
   },

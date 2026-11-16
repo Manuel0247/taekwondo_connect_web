@@ -4,6 +4,7 @@ import type {
   Athlete, AthleteBadge, AthleteHistorique, AppNotification, Club, ClubDocument, ClubSummary, Course, CreatedAccount,
   FavoriTechnique, Grade, Inscription, Invitation, InvitationSendResult, LeagueEvent,
   EventClassement, MyInscription, NotificationPreferences, Reservation, Technique, User,
+  CreateOrderPayload, Order, Product, ProductCategory,
 } from "../types";
 
 export type Paginated<T> = { items: T[]; page: number; lastPage: number; total: number };
@@ -208,4 +209,19 @@ export const uploadsApi = {
     (await unwrap(api.post<Envelope<{ url: string }>>("/uploads/image", uploadForm(file, t), { timeout: 120000 }))).url,
   document: async (file: File, t: UploadTarget) =>
     (await unwrap(api.post<Envelope<{ url: string }>>("/uploads/document", uploadForm(file, t), { timeout: 120000 }))).url,
+};
+
+// ── Boutique ────────────────────────────────────────────────────────────────
+export const shopApi = {
+  categories: () => unwrap(api.get<Envelope<ProductCategory[]>>("/shop/categories")),
+  products: (params: { category_id?: string; q?: string }) =>
+    unwrap(api.get<Envelope<Product[]>>("/shop/products", { params: { ...params, limit: 100 } })),
+  product: (id: string) => unwrap(api.get<Envelope<Product>>(`/shop/products/${id}`)),
+};
+
+export const ordersApi = {
+  create: (p: CreateOrderPayload) => unwrap(api.post<Envelope<Order>>("/orders", p)),
+  mine: () => unwrap(api.get<Envelope<Order[]>>("/orders/me")),
+  detail: (id: string) => unwrap(api.get<Envelope<Order>>(`/orders/${id}`)),
+  cancel: (id: string) => unwrap(api.put<Envelope<Order>>(`/orders/${id}/cancel`)),
 };

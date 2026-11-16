@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {
-  Award, Bell, CalendarCheck, ChevronRight, Heart, LogOut, Medal, Pencil, Shield, Trophy, UserCog,
+  Award, Bell, CalendarCheck, ChevronRight, Heart, LogOut, Medal, Pencil, ReceiptText, Shield, ShoppingBag, Trophy, UserCog,
 } from "lucide-react";
 import { useAthleteBadges, useAthleteClassement, useMyAthleteProfile } from "@/lib/hooks/athletes";
 import { useMyReservations } from "@/lib/hooks/courses";
@@ -69,6 +69,8 @@ export default function AthleteProfilePage() {
               <MenuLink href="/athlete/profil/notifications" icon={<Bell />} label="Préférences notifications" />
               <MenuLink href="/athlete/profil/grades" icon={<Award />} label="Historique des grades" />
               <MenuLink href="/athlete/techniques/favoris" icon={<Heart />} label="Mes techniques favorites" />
+              <MenuLink href="/athlete/boutique" icon={<ShoppingBag />} label="Boutique" />
+              <MenuLink href="/athlete/boutique/commandes" icon={<ReceiptText />} label="Mes commandes" />
               <button type="button" onClick={onLogout} className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-[15px] font-medium text-[#f87171] hover:bg-danger/10">
                 <LogOut className="size-5" /> Se déconnecter
               </button>

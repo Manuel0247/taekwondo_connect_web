@@ -274,3 +274,58 @@ export interface ApiEnvelope<T> {
   message?: string;
   pagination?: { page: number; limit: number; total: number; last_page: number };
 }
+
+// ── Boutique ────────────────────────────────────────────────────────────────
+
+export interface ProductCategory {
+  id: string;
+  nom: string;
+  ordre: number;
+  products_count?: number;
+}
+
+export interface Product {
+  id: string;
+  nom: string;
+  description: string | null;
+  prix: number;
+  images: string[] | null;
+  tailles: string[] | null;     // vide = taille unique
+  disponible: boolean;          // false = épuisé (visible, non commandable)
+  category_id: string | null;
+  category?: { id: string; nom: string } | null;
+}
+
+export type OrderStatut = "en_attente" | "confirmee" | "livree" | "annulee";
+
+export interface OrderItem {
+  id: string;
+  product_id: string | null;
+  nom_produit: string;
+  image: string | null;
+  taille: string | null;
+  prix_unitaire: number;
+  quantite: number;
+  sous_total: number;
+}
+
+export interface Order {
+  id: string;
+  numero: string;
+  statut: OrderStatut;
+  total: number;
+  telephone: string | null;
+  commentaire: string | null;
+  motif_annulation: string | null;
+  created_at: string;
+  confirmee_le: string | null;
+  livree_le: string | null;
+  annulee_le: string | null;
+  items: OrderItem[];
+}
+
+export interface CreateOrderPayload {
+  items: { product_id: string; quantite: number; taille?: string | null }[];
+  telephone?: string;
+  commentaire?: string;
+}

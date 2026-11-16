@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertCircle, CalendarCheck, CalendarRange, ChevronRight, Clock, Hourglass, Plus, RefreshCw, Users, CalendarDays } from "lucide-react";
+import { AlertCircle, CalendarCheck, CalendarRange, ChevronRight, Clock, Hourglass, Plus, RefreshCw, ShoppingBag, Users, CalendarDays } from "lucide-react";
 import { useAuthStore } from "@/lib/stores";
 import { useMyClub } from "@/lib/hooks/clubs";
 import { useClubAthletes, useClubAthletesPending } from "@/lib/hooks/athletes";
@@ -146,6 +146,7 @@ export default function MaitreDashboardPage() {
             <Shortcut href="/maitre/calendrier" icon={<CalendarRange />} title="Calendrier des événements" text="Voir tous les événements de la ligue" />
             <Shortcut href="/maitre/cours/nouveau" icon={<Plus />} title="Nouveau cours" text="Planifier une séance ou un cours récurrent" />
             <Shortcut href="/maitre/athletes/invitations" icon={<Users />} title="Inviter des athlètes" text="Envoyer une invitation par email" />
+            <Shortcut href="/maitre/boutique" icon={<ShoppingBag />} title="Boutique" text="Tenues et équipements de la ligue" />
           </aside>
         </div>
       </PageContainer>

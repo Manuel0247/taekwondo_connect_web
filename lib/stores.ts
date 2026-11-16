@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import type { User, UserRole } from "./types";
+import { useCartStore } from "./cart";
 import { clearSession, loadActiveClub, loadSession, saveActiveClub, saveSession, updateStoredUser } from "./session";
 
 interface AuthState {
@@ -53,6 +54,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: (reason) => {
     clearSession();
+    useCartStore.getState().clear(); // panier propre à chaque compte
     set({ user: null, token: null, role: null, logoutReason: reason ?? null, activeClubId: null });
   },
 }));

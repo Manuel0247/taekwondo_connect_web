@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Bell, CalendarDays, ChevronRight, LogOut, Mail, Shield, UserCog, Users } from "lucide-react";
+import { Bell, CalendarDays, ChevronRight, LogOut, Mail, ReceiptText, Shield, ShoppingBag, UserCog, Users } from "lucide-react";
 import { useAuthStore } from "@/lib/stores";
 import { useLogout } from "@/lib/hooks/auth";
 import { useMyClub } from "@/lib/hooks/clubs";
@@ -56,6 +56,8 @@ export default function MaitreProfilePage() {
             <MenuLink href="/maitre/cours" icon={<CalendarDays />} label="Mes cours" />
             <MenuLink href="/maitre/athletes" icon={<Users />} label="Mes athlètes" />
             <MenuLink href="/maitre/athletes/invitations" icon={<Mail />} label="Invitations" />
+            <MenuLink href="/maitre/boutique" icon={<ShoppingBag />} label="Boutique" />
+            <MenuLink href="/maitre/boutique/commandes" icon={<ReceiptText />} label="Mes commandes" />
             <MenuLink href="/maitre/notifications" icon={<Bell />} label="Notifications" />
             <MenuLink href="/maitre/profil/notifications" icon={<Bell />} label="Préférences notifications" />
             <MenuLink href="/maitre/profil/compte" icon={<UserCog />} label="Mon profil, ma ceinture et mot de passe" />
