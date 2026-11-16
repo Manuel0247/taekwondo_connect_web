@@ -13,6 +13,7 @@ import { EmptyState, SectionTitle, Skeleton } from "@/components/ui/display";
 import { LinkButton } from "@/components/ui/button";
 import { AthleteRow, CourseCard, StatCard } from "@/components/domain/cards";
 import { PendingActions } from "@/components/screens/pending-actions";
+import { ClubSwitcher } from "@/components/screens/club-switcher";
 
 export default function MaitreDashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -57,6 +58,9 @@ export default function MaitreDashboardPage() {
       </header>
 
       <PageContainer className="mt-4 space-y-6 md:mt-0">
+        {/* Plusieurs clubs : choix du club actif */}
+        <ClubSwitcher />
+
         {/* Règle 2 : club non validé → bannière orange */}
         {c && c.statut !== "valide" && (
           <div className="flex items-center gap-3 rounded-md bg-primary p-3.5 text-ink" role="status">

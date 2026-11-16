@@ -20,6 +20,7 @@ import { Dialog, useConfirm } from "@/components/ui/dialog";
 import { FilePick, formatSize } from "@/components/ui/file-pick";
 import { Spinner, CenteredSpinner } from "@/components/ui/spinner";
 import { ClubLogo } from "@/components/domain/cards";
+import { ClubSwitcher } from "@/components/screens/club-switcher";
 import { LocationMap } from "@/components/maps";
 
 export default function MyClubPage() {
@@ -85,6 +86,10 @@ export default function MyClubPage() {
   return (
     <>
       <PageHeader title="Mon Club" subtitle={club.nom} actions={<Badge label={status.long} color={status.color} size="sm" />} />
+      {/* Plusieurs clubs : choix du club affiché et modifié */}
+      <PageContainer className="empty:hidden mt-4 md:mt-0 md:mb-6">
+        <ClubSwitcher />
+      </PageContainer>
       <PageContainer className="mt-4 grid grid-cols-1 gap-6 md:mt-0 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="min-w-0 space-y-6">
           {/* Logo */}

@@ -14,6 +14,16 @@ export interface User {
   grade?: Grade | null;          // ceinture du maître de salle (affichée sur la page du club)
   dan?: number | null;
   created_at?: string;
+  clubs?: ClubSummary[];         // maître de salle : tous ses clubs (il peut en avoir plusieurs)
+}
+
+/** Club tel que listé dans user.clubs (maître de salle). */
+export interface ClubSummary {
+  id: string;
+  nom: string;
+  ville: string;
+  statut: "en_attente" | "valide" | "suspendu";
+  logo_url?: string | null;
 }
 
 /** Réponse de création d'un compte pour quelqu'un d'autre (athlète par son maître). */

@@ -1,7 +1,7 @@
 // Endpoints de l'API /api/v1 — mêmes appels que src/api/* de l'application mobile.
 import { api, unwrap, type Envelope } from "./client";
 import type {
-  Athlete, AthleteBadge, AthleteHistorique, AppNotification, Club, ClubDocument, Course, CreatedAccount,
+  Athlete, AthleteBadge, AthleteHistorique, AppNotification, Club, ClubDocument, ClubSummary, Course, CreatedAccount,
   FavoriTechnique, Grade, Inscription, Invitation, InvitationSendResult, LeagueEvent,
   EventClassement, MyInscription, NotificationPreferences, Reservation, Technique, User,
 } from "../types";
@@ -111,6 +111,8 @@ export const clubsApi = {
     paginated<Club>(api.get("/clubs", { params })),
   detail: (id: string) => unwrap(api.get<Envelope<Club>>(`/clubs/${id}`)),
   me: () => unwrap(api.get<Envelope<Club>>("/clubs/me")),
+  /** Tous les clubs du maître de salle (il peut en gérer plusieurs) */
+  mine: async () => (await unwrap(api.get<Envelope<{ clubs?: ClubSummary[] }>>("/users/me"))).clubs ?? [],
   updateMe: (p: Partial<Club>) => unwrap(api.put<Envelope<Club>>("/clubs/me", p)),
   updatePhotos: (photos_urls: string[]) => api.put("/clubs/me/photos", { photos_urls }),
   updateHoraires: (horaires: Record<string, string>) => api.put("/clubs/me/horaires", { horaires }),

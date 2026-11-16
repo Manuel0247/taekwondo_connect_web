@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import type { User, UserRole } from "./types";
-import { clearSession, loadSession, saveSession, updateStoredUser } from "./session";
+import { clearSession, loadActiveClub, loadSession, saveActiveClub, saveSession, updateStoredUser } from "./session";
 
 interface AuthState {
   user: User | null;
@@ -16,6 +16,9 @@ interface AuthState {
   setAuth: (user: User, token: string) => void;
   setUser: (user: User) => void;
   logout: (reason?: "expired") => void;
+  /** Maître de salle : club sur lequel il travaille (en-tête X-Club-Id ; null = son premier club) */
+  activeClubId: string | null;
+  setActiveClub: (clubId: string) => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -24,11 +27,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   role: null,
   hydrated: false,
   logoutReason: null,
+  activeClubId: null,
+
+  setActiveClub: (activeClubId) => {
+    saveActiveClub(activeClubId);
+    set({ activeClubId });
+  },
 
   hydrate: () => {
     if (get().hydrated) return;
     const s = loadSession();
-    if (s) set({ user: s.user, token: s.token, role: s.user.role, hydrated: true });
+    if (s) set({ user: s.user, token: s.token, role: s.user.role, hydrated: true, activeClubId: loadActiveClub() });
     else set({ hydrated: true });
   },
 
@@ -44,7 +53,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: (reason) => {
     clearSession();
-    set({ user: null, token: null, role: null, logoutReason: reason ?? null });
+    set({ user: null, token: null, role: null, logoutReason: reason ?? null, activeClubId: null });
   },
 }));
 

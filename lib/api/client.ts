@@ -13,6 +13,9 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
   if (token && !config.headers.Authorization) config.headers.Authorization = `Bearer ${token}`;
+  // Maître de salle avec plusieurs clubs : club sur lequel il travaille (routes /clubs/me…)
+  const clubId = useAuthStore.getState().activeClubId;
+  if (clubId) config.headers["X-Club-Id"] = clubId;
   return config;
 });
 

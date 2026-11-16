@@ -4,6 +4,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 import { clubsApi, type ClubFilters } from "../api/endpoints";
 import { extractApiError } from "../api-error";
+import { useAuthStore } from "../stores";
 
 const onErr = (err: unknown) => toast.error(extractApiError(err));
 
@@ -20,6 +21,22 @@ export const useClubDetail = (id: string) =>
   useQuery({ queryKey: ["club", id], queryFn: () => clubsApi.detail(id), enabled: !!id });
 
 export const useMyClub = () => useQuery({ queryKey: ["myClub"], queryFn: clubsApi.me });
+/** Tous les clubs du maître (le sélecteur n'apparaît que s'il en a plusieurs) */
+export const useMyClubs = () => useQuery({ queryKey: ["myClubs"], queryFn: clubsApi.mine });
+
+/**
+ * Change le club actif : l'en-tête X-Club-Id change, donc toutes les données chargées
+ * (club, athlètes, cours, invitations…) sont rechargées pour le nouveau club.
+ */
+export function useSwitchClub() {
+  const qc = useQueryClient();
+  const setActiveClub = useAuthStore((s) => s.setActiveClub);
+  return async (clubId: string) => {
+    setActiveClub(clubId);
+    await qc.resetQueries({ predicate: (q) => q.queryKey[0] !== "myClubs" });
+  };
+}
+
 export const useClubDocuments = () => useQuery({ queryKey: ["clubDocuments"], queryFn: clubsApi.documents });
 
 export function useUpdateMyClub(successMessage = "Club mis à jour") {
